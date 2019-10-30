@@ -1,5 +1,6 @@
 package iteration
 
+// Repeat character N times
 func Repeat(character string, count int) string {
 	var repeated string
 
