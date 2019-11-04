@@ -9,11 +9,11 @@ import (
 )
 
 type SpyTime struct {
-	durationSleep time.Duration
+	durationSlept time.Duration
 }
 
 func (s *SpyTime) Sleep(duration time.Duration) {
-	s.durationSleep = duration
+	s.durationSlept = duration
 }
 
 type CountdownOperationsSpy struct {
@@ -41,7 +41,7 @@ func TestConfigurableSleeper(t *testing.T) {
 	sleeper := ConfigurableSleeper{sleepTime, spyTime.Sleep}
 	sleeper.Sleep()
 
-	assert.Equal(t, spyTime.durationSleep, sleepTime)
+	assert.Equal(t, spyTime.durationSlept, sleepTime)
 }
 
 func TestCountdown(t *testing.T) {
