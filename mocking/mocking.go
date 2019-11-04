@@ -11,12 +11,13 @@ type Sleeper interface {
 	Sleep()
 }
 
-type SpySleeper struct {
-	Calls int
+type ConfigurableSleeper struct {
+	duration time.Duration
+	sleep    func(time.Duration)
 }
 
-func (s *SpySleeper) Sleep() {
-	s.Calls++
+func (c *ConfigurableSleeper) Sleep() {
+	c.sleep(c.duration)
 }
 
 const (
@@ -25,15 +26,19 @@ const (
 )
 
 func main() {
-	Countdown(os.Stdout)
+	sleeper := new(ConfigurableSleeper)
+	sleeper.duration = 1 * time.Second
+	sleeper.sleep = time.Sleep
+
+	Countdown(os.Stdout, sleeper)
 }
 
-func Countdown(writer io.Writer) {
+func Countdown(writer io.Writer, sleeper Sleeper) {
 	for i := countDownStart; i > 0; i-- {
-		time.Sleep(1 * time.Second)
-		_, _ = fmt.Fprintf(writer, "%d\n", i)
+		sleeper.Sleep()
+		_, _ = fmt.Fprintln(writer, i)
 	}
 
-	time.Sleep(1 * time.Second)
-	_, _ = fmt.Fprintf(writer, finalWord)
+	sleeper.Sleep()
+	_, _ = fmt.Fprint(writer, finalWord)
 }
