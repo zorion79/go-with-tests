@@ -1,15 +1,28 @@
 package _select
 
 import (
+	"errors"
 	"net/http"
+	"time"
 )
 
-func Racer(a, b string) string {
+var (
+	ErrTimeout = errors.New("time is out")
+	timeout    = 10 * time.Second
+)
+
+func Racer(a, b string) (string, error) {
+	return ConfigurableRacer(a, b, timeout)
+}
+
+func ConfigurableRacer(a, b string, timeout time.Duration) (string, error) {
 	select {
+	case <-time.After(timeout):
+		return "", ErrTimeout
 	case <-ping(a):
-		return a
+		return a, nil
 	case <-ping(b):
-		return b
+		return b, nil
 	}
 }
 
