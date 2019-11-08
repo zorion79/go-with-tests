@@ -3,6 +3,9 @@ package numeral
 import (
 	"fmt"
 	"testing"
+	"testing/quick"
+
+	"github.com/stretchr/testify/assert"
 )
 
 var cases = []struct {
@@ -40,8 +43,7 @@ var cases = []struct {
 	{Arabic: 798, Roman: "DCCXCVIII"},
 }
 
-func TestRomanNumerals(t *testing.T) {
-
+func TestConvertToRoman(t *testing.T) {
 	for _, test := range cases {
 		t.Run(fmt.Sprintf("%d gets converted to %q", test.Arabic, test.Roman), func(t *testing.T) {
 			got := ConvertToRoman(test.Arabic)
@@ -50,4 +52,29 @@ func TestRomanNumerals(t *testing.T) {
 			}
 		})
 	}
+}
+
+func TestConvertToArabic(t *testing.T) {
+	for _, test := range cases {
+		t.Run(fmt.Sprintf("%q gets converted to %d", test.Roman, test.Arabic), func(t *testing.T) {
+			got := ConvertToArabic(test.Roman)
+			assert.Equal(t, test.Arabic, got)
+		})
+	}
+}
+
+func TestPropertiesOfConversion(t *testing.T) {
+	assertion := func(arabic uint16) bool {
+		if arabic > 3999 {
+			return true
+		}
+
+		t.Log("testing", arabic)
+
+		roman := ConvertToRoman(int(arabic))
+		fromRoman := ConvertToArabic(roman)
+		return fromRoman == int(arabic)
+	}
+
+	assert.NoError(t, quick.Check(assertion, &quick.Config{MaxCount: 1000}))
 }
